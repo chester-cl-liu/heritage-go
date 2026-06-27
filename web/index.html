@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>刘氏族谱展示通用平台</title>
+  <style>
+    body {
+      margin: 0; padding: 0; overflow: hidden; background-color: #f7f9fa;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    #header {
+      position: absolute; top: 20px; left: 20px; z-index: 10;
+      background: rgba(255, 255, 255, 0.95); padding: 15px 25px;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); backdrop-filter: blur(4px);
+      display: flex; align-items: center; gap: 15px;
+    }
+    #header h1 { margin: 0; font-size: 18px; color: #2c3e50; }
+    #header p { margin: 3px 0 8px 0; font-size: 13px; color: #7f8c8d; }
+    .btn {
+      background-color: #5b8ff9; color: white; border: none; padding: 6px 12px;
+      border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn:hover { background-color: #3e76ec; }
+    #container { width: 100vw; height: 100vh; }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 800'><rect width='800' height='800' rx='160' fill='%231a2230'/><circle cx='260' cy='400' r='35' fill='%238B1E0F'/><circle cx='420' cy='280' r='20' fill='%23D9534F'/><circle cx='580' cy='180' r='16' fill='%234A90E2'/><path d='M260 400 Q340 400 420 280 Q500 200 580 180' fill='none' stroke='%23ffffff' stroke-width='8'/></svg>">
+  <script src="/static/g6.min.js"></script>
+</head>
+<body>
+
+  <div id="header">
+    <div style="width: 45px; height: 45px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" style="width: 100%; height: 100%; display: block;">
+        <defs>
+            <!-- 渐变色保持纯正 -->
+            <linearGradient id="heritageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#8B1E0F" />
+            <stop offset="50%" stop-color="#D9534F" />
+            <stop offset="100%" stop-color="#4A90E2" />
+            </linearGradient>
+        </defs>
+
+        <!-- 背景底色 -->
+        <rect width="800" height="800" rx="160" fill="#1a2230" />
+        
+        <!-- 代际同心圆，适当加粗，确保在小屏幕下清晰可见 -->
+        <circle cx="400" cy="400" r="300" fill="none" stroke="#253248" stroke-width="12" stroke-dasharray="25 20" />
+        <circle cx="400" cy="400" r="180" fill="none" stroke="#253248" stroke-width="8" stroke-dasharray="15 15" />
+
+        <!-- 核心血脉演进线，大幅加粗（从5-8px提升至20-30px），防止缩小时变细消失 -->
+        <g fill="none" stroke-linecap="round">
+            <path d="M 220 400 Q 320 400 440 240" stroke="url(#heritageGrad)" stroke-width="32" />
+            <path d="M 220 400 Q 320 400 440 560" stroke="url(#heritageGrad)" stroke-width="32" />
+            
+            <path d="M 440 240 Q 540 140 640 120" stroke="#4A90E2" stroke-width="20" stroke-dasharray="10 15" />
+            <path d="M 440 240 Q 540 300 640 330" stroke="#4A90E2" stroke-width="20" />
+            <path d="M 440 560 Q 540 500 640 470" stroke="#4A90E2" stroke-width="20" />
+            <path d="M 440 560 Q 540 660 640 680" stroke="#4A90E2" stroke-width="20" stroke-dasharray="10 15" />
+        </g>
+
+        <!-- 始祖中心节点（去除累赘文字，小尺寸下“始”字会糊掉，换成更有质感的图腾原点） -->
+        <circle cx="220" cy="400" r="70" fill="url(#heritageGrad)" stroke="#ffffff" stroke-width="16" />
+        <circle cx="220" cy="400" r="22" fill="#FFD700" />
+
+        <!-- 次级分支节点 -->
+        <circle cx="440" cy="240" r="45" fill="#D9534F" stroke="#ffffff" stroke-width="12" />
+        <circle cx="440" cy="560" r="45" fill="#D9534F" stroke="#ffffff" stroke-width="12" />
+
+        <!-- 边缘衍生端点 -->
+        <circle cx="640" cy="120" r="30" fill="#4A90E2" stroke="#ffffff" stroke-width="10" />
+        <circle cx="640" cy="330" r="30" fill="#4A90E2" stroke="#ffffff" stroke-width="10" />
+        <circle cx="640" cy="470" r="30" fill="#4A90E2" stroke="#ffffff" stroke-width="10" />
+        <circle cx="640" cy="680" r="30" fill="#4A90E2" stroke="#ffffff" stroke-width="10" />
+        </svg>
+    </div>
+    
+    <div>
+      <h1>刘氏族谱展示平台</h1>
+      <!-- Excel 拖拽上传区域 -->
+      <div id="upload-container" style="margin-top: 15px; border: 2px dashed #4A90E2; border-radius: 8px; padding: 15px; text-align: center; background: #fdfdfd; cursor: pointer; transition: all 0.3s ease;">
+        <div id="upload-tips">
+          <span style="font-size: 20px;">📊</span> 
+          <span style="font-size: 13px; color: #555; font-weight: 500;">拖拽 Excel 谱系表到这里，或 <mark style="background: none; color: #4A90E2; font-weight: bold; text-decoration: underline;">点击浏览文件</mark></span>
+        </div>
+        <!-- 隐藏的真实文件输入框 -->
+        <input type="file" id="file-input" accept=".xlsx, .xls" style="display: none;" />
+        
+        <!-- 动态进度/状态条 -->
+        <div id="upload-status" style="display: none; margin-top: 8px; font-size: 12px; color: #666;">
+          <div style="width: 100%; background: #eee; height: 6px; border-radius: 3px; overflow: hidden;">
+            <div id="progress-bar" style="width: 0%; height: 100%; background: #4A90E2; transition: width 0.2s;"></div>
+          </div>
+          <span id="status-text" style="display: inline-block; margin-top: 5px;">正在准备上传...</span>
+        </div>
+      </div>
+      <p>当前载入：14代谱系 · 604位家族成员</p>
+      <button class="btn" onclick="exportFullImage()">📸 保存家族谱全图</button>
+    </div>
+  </div>
+
+  <div id="container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('upload-container');
+      const fileInput = document.getElementById('file-input');
+      const uploadTips = document.getElementById('upload-tips');
+      const uploadStatus = document.getElementById('upload-status');
+      const progressBar = document.getElementById('progress-bar');
+      const statusText = document.getElementById('status-text');
+
+      // 1. 点击拖拽区域触发文件浏览
+      dropZone.addEventListener('click', () => fileInput.click());
+
+      // 2. 监听文件选择
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleFileUpload(e.target.files[0]);
+        }
+      });
+
+      // 3. 拖拽进出视觉高亮特效
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.style.background = '#eef5fc';
+          dropZone.style.borderColor = '#357abd';
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.style.background = '#fdfdfd';
+          dropZone.style.borderColor = '#4A90E2';
+        }, false);
+      });
+
+      // 4. 捕捉拖拽松开事件，获取文件
+      dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+          handleFileUpload(files[0]);
+        }
+      });
+
+      // 5. 核心异步流上传逻辑
+      function handleFileUpload(file) {
+        // 严格限制文件类型
+        const suffix = file.name.split('.').pop().toLowerCase();
+        if (suffix !== 'xlsx' && suffix !== 'xls') {
+          alert('⚠️ 格式错误：请上传标准的 Excel 文件 (.xlsx 或 .xls)');
+          return;
+        }
+
+        // 切换 UI 状态为“上传中”
+        uploadTips.style.display = 'none';
+        uploadStatus.style.display = 'block';
+        progressBar.style.width = '0%';
+        statusText.innerText = `正在读取: ${file.name}...`;
+
+        // 组装标准二进制表单数据
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // 采用原生 XMLHttpRequest 以便精准捕获进度条百分比
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/v1/import', true);
+
+        // 监听网络上传进度
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percent + '%';
+            statusText.innerText = `后端正在急速清洗数据... ${percent}%`;
+          }
+        });
+
+        // 监听后端处理响应
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            statusText.style.color = '#2ed573';
+            statusText.innerHTML = `✅ <b>导入成功！</b> ${response.message || ''}`;
+            
+            // 核心惊艳点：上传成功后，立刻无感刷新 G6 谱系树画布
+            if (typeof fetchAndRenderTree === 'function') {
+              setTimeout(() => {
+                fetchAndRenderTree(); // 触发你原有的 G6 渲染请求，让新族谱跃然纸上
+                resetUploadZone();
+              }, 1500);
+            }
+          } else {
+            const errResp = JSON.parse(xhr.responseText || '{}');
+            alert(`❌ 导入失败: ${errResp.error || '服务器解析异常'}`);
+            resetUploadZone();
+          }
+        };
+
+        xhr.onerror = function () {
+          alert('❌ 网络连接失败，请检查后端 Go 服务是否正常运行');
+          resetUploadZone();
+        };
+
+        xhr.send(formData);
+      }
+
+      // 重置上传区域样式
+      function resetUploadZone() {
+        setTimeout(() => {
+          uploadTips.style.display = 'block';
+          uploadStatus.style.display = 'none';
+          progressBar.style.width = '0%';
+          statusText.style.color = '#666';
+          fileInput.value = ''; // 清空 file 占位
+        }, 2000);
+      }
+    });
+
+    let graph = null;
+
+    // 异步拉取 Go 引擎纯净数据
+    fetch('/api/v1/tree')
+      .then(res => res.json())
+      .then(treeData => {
+        if (!treeData || treeData.length === 0) return;
+
+        // 保底逻辑：不管一个始祖还是多个始祖，统一用一个虚拟总源头包裹，防止 G6 找不到根节点
+        const data = {
+          id: 'root-source',
+          name: '谱系总源头',
+          generation: 0,
+          children: treeData
+        };
+
+        const container = document.getElementById('container');
+        const width = container.scrollWidth || window.innerWidth;
+        const height = container.scrollHeight || window.innerHeight;
+
+        // 初始化 G6 树图
+        graph = new G6.TreeGraph({
+          container: 'container',
+          width,
+          height,
+          linkCenter: true,
+          modes: { default: ['drag-canvas', 'zoom-canvas'] },
+          defaultNode: {
+            type: 'rect',
+            size: [120, 45],
+            style: { fill: '#eef5fe', stroke: '#5b8ff9', radius: 4, lineWidth: 1.5 },
+            labelCfg: { style: { fill: '#2c3e50', fontSize: 12 } },
+          },
+          defaultEdge: {
+            type: 'cubic-horizontal',
+            style: { stroke: '#A3B1BF', lineWidth: 1.5 },
+          },
+          layout: {
+            type: 'compactBox',
+            direction: 'H',
+            getId: d => String(d.id),
+            getHeight: () => 45,
+            getWidth: () => 120,
+            getVGap: () => 18,
+            getHGap: () => 70,
+          },
+        });
+
+        graph.node(node => {
+          let labelText = node.name;
+          if (node.spouse) labelText += `\n配偶: ${node.spouse}`;
+          if (node.generation > 0) labelText += ` (${node.generation}代)`;
+          return {
+            label: labelText,
+            style: node.id === 'root-source' || node.father_id === 0 ? { fill: '#fcf0e5', stroke: '#ffa940' } : {},
+          };
+        });
+
+        // 绑定点击事件：点击节点可以收起或展开子孙支系，解决大规模人烟撑爆画布的问题
+        graph.on('node:click', (e) => {
+          const item = e.item;
+          if (item.get('model').id === 'root-source') return;
+          graph.updateDataChange(false);
+          const model = item.getModel();
+          model.collapsed = !model.collapsed;
+          graph.emit('changedatarefresh', { data });
+        });
+
+        // 送入渲染
+        graph.data(data);
+        graph.render();
+        graph.fitView();
+
+        window.onresize = () => {
+          if (!graph || graph.get('destroyed')) return;
+          graph.changeSize(container.scrollWidth, container.scrollHeight);
+        };
+      });
+
+    // 基于 G6 原生图论边界算法：一键全景不拉伸下载
+    function exportFullImage() {
+    if (!graph || graph.get('destroyed')) {
+        alert('图表尚未加载完成，请稍后再试');
+        return;
+    }
+
+    try {
+        // 1. 动态时间戳文件名，确保多次保存不被浏览器拦截
+        const now = new Date();
+        const timeStr = now.getFullYear() + 
+                        String(now.getMonth() + 1).padStart(2, '0') + 
+                        String(now.getDate()).padStart(2, '0') + '_' + 
+                        String(now.getHours()).padStart(2, '0') + 
+                        String(now.getMinutes()).padStart(2, '0');
+        const fileName = `刘氏族谱全景大图_${timeStr}`;
+
+        // 2. 核心算法：根据当前 604 位成员的画布实际膨胀总边界，动态计算超清又不崩溃的 DPI (pixelRatio)
+        // 获取图表的物理包围盒 (Bounding Box)
+        const group = graph.get('group');
+        const bbox = group.getBBox();
+        const area = bbox.width * bbox.height;
+
+        // 设定一个安全的总像素上限（约 4800 万像素，对应导出的 PNG 文件在 30MB - 40MB 左右）
+        const MAX_PIXELS = 48000000; 
+        let pixelRatio = 3; // 默认给 3 倍超清渲染
+
+        // 如果族谱铺得太宽太大，自动根据公式降低像素比，确保不崩溃且保留最高清晰度
+        if (area * (pixelRatio * pixelRatio) > MAX_PIXELS) {
+        pixelRatio = Math.sqrt(MAX_PIXELS / area);
+        // 保底系数，防止极大规模下像素过低糊掉
+        if (pixelRatio < 0.6) pixelRatio = 0.6; 
+        }
+
+        console.log(`[族谱导出] 动态计算画布面积: ${bbox.width}x${bbox.height}, 采用 DPI 系数: ${pixelRatio.toFixed(2)}`);
+
+        // 3. 执行全景大图导出（不改变用户当前的屏幕缩放视角，只调整后台渲染精度）
+        graph.downloadFullImage(fileName, 'image', {
+        backgroundColor: '#f7f9fa',
+        padding: [50, 50, 50, 50],
+        pixelRatio: pixelRatio // 将动态像素比喂给 G6
+        });
+
+    } catch (error) {
+        console.error('导出失败，触发物理边界:', error);
+        // 终极降级方案：切入可视区域无损导出
+        alert('家谱过于庞大已触发浏览器安全限制，已为您自动切换至【高清可视区域导出】');
+        graph.downloadImage(`刘氏族谱_智能截取_${Date.now()}`, 'image', '#f7f9fa');
+    }
+    }
+  </script>
+</body>
+</html>
