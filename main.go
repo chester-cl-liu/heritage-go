@@ -2,16 +2,18 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	
-	"genealogy-system/model"
-	"genealogy-system/repository"
-	"genealogy-system/service"
+	"heritage-go/model"
+    "heritage-go/repository"
+    "heritage-go/service"
 )
 
 //go:embed web/index.html static/*

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"genealogy-system/model"
+	"heritage-go/model"
 )
 
 var DB *gorm.DB

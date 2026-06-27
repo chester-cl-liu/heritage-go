@@ -1,6 +1,6 @@
 package service
 
-import "genealogy-system/model"
+import "heritage-go/model"
 
 // BuildFamilyTree 将扁平的成员列表高效转化为多叉拓扑树
 func BuildFamilyTree(members []model.Member) []*model.Node {

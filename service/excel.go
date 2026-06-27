@@ -6,8 +6,10 @@ import (
 	"strings"
 
 	"github.com/xuri/excelize/v2"
-	"genealogy-system/model"
-	"genealogy-system/repository"
+	"heritage-go/model"
+	"heritage-go/repository"
+
+	"gorm.io/gorm"
 )
 
 // ImportFromExcel 解析上传的 Excel 文件并进行批量原子化写入
