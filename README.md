@@ -29,7 +29,7 @@ HeritageGo 是一款专为数字化安全传承华夏家族血脉记忆而设计
 ## 📦 快速开始 (使用者指南)
 
 ### Windows 用户 (推荐)
-1. 前往项目的 [Releases 页面](https://github.com/chester-cl-liu/heritage-go/releases) 下载最新版的 `heritage-go_v1.0.0_windows_amd64.zip`。
+1. 前往项目的 [Releases 页面](https://github.com/chester-cl-liu/heritage-go/releases) 下载最新版的 `heritage-go_v1.0.1_windows_amd64.zip`。
 2. 解压压缩包到任意本地目录。
 3. 双击运行 `heritage-go_windows_amd64.exe`。系统会自动在当前目录下初始化 `storage/` 数据库目录。
 4. 打开浏览器，访问 `http://localhost:8080`，即可开启您的数字化寻根之旅！
@@ -37,7 +37,7 @@ HeritageGo 是一款专为数字化安全传承华夏家族血脉记忆而设计
 ### Linux / 树莓派用户
 ```bash
 # 下载对应架构的二进制文件，以 Linux amd64 为例
-wget [https://github.com/chester-cl-liu/heritage-go/releases/download/v1.0.0/heritage-go_linux_amd64](https://github.com/chester-cl-liu/heritage-go/releases/download/v1.0.0/heritage-go_linux_amd64)
+wget [https://github.com/chester-cl-liu/heritage-go/releases/download/v1.0.1/heritage-go_linux_amd64](https://github.com/chester-cl-liu/heritage-go/releases/download/v1.0.1/heritage-go_linux_amd64)
 
 # 赋予执行权限
 chmod +x heritage-go_linux_amd64
